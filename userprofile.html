@@ -1,0 +1,232 @@
+<html>
+    <header>
+        <title>Moments</title>
+        <link rel="stylesheet" href="css/userprofile.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
+        <script>
+            //get data from clicked username 
+            var username = localStorage.getItem("userDisp");
+            var user = username;
+            
+            
+            //run functions
+            $(document).ready(function(){
+                userdata();
+                var user = localStorage.getItem("userDisp");
+				console.log(user);
+					for(a=9;a>=5;a--)
+						usernamez(user,a);
+					var num = a;
+					
+					$("#more").click(function(){
+						if(num>=0){
+							for(i=num;i>num-5;i--)
+								usernamez(user,i);
+							num-=5;
+						}
+						else
+							alert("No more posts to show");
+					});
+			});
+            
+            //display userdata
+            function userdata(){
+                var root = 'https://jsonplaceholder.typicode.com/';
+
+                $.ajax({
+                    url: root + 'users',
+                    data: {
+                        username: username
+                    },
+                    dataType: 'json',
+                    method: 'GET',
+                    success: function(data){
+                        setProfi(data);
+                        
+                        //get albums
+                        for(var x = 0; x < 5; x++)
+                            getalbumz(data, x);
+                        
+
+                        var clickctr = 0;
+                        $(".albumSM").click(function(data){
+                            clickctr++;
+                            if(clickctr < 2)
+                                for(x = 5; x < 10; x++)
+                                    getalbumz(data, x);
+                            else alert("No more albums to show.");
+                        })
+                    }
+                })
+            }
+                function setProfi(data){
+                    var ok = data[0];
+                    var name = ok.name;
+                    var email = ok.email;
+                    var address = " ".concat(ok.address.suite, ", ", ok.address.street, ", ", ok.address.city, ", ", ok.address.zipcode);
+                    var geo = ok.geo; // lat, lng
+                    var phone = ok.phone;
+                    var web = ok.website;
+                    var comp = ok.company; // name, catchphrase, bs
+                    
+                    $("#name").replaceWith('<h2 id="name">' + name + '</h2>');
+                    $("#un").replaceWith('<a id= "un" href="userprofile.html">@' + username + '</a>');
+                    $("#em").replaceWith('<p id="em">' + email + '</p>');
+                    $("#addr").replaceWith('<p id="addr">' + address + '</p>');
+                    $("#phone").replaceWith('<p id="phone">' + phone + '</p>');
+                    $("#cp").replaceWith('<p id="cp">' + comp.catchPhrase + '</p>');
+                    $("#bs").replaceWith('<p id="bs">' + comp.bs + '</p>');
+                    $("#cname").replaceWith('<p id="cname">' + comp.name + '</p>');
+                    $("#web").replaceWith('<h1 id="web">' + web + '</h1>');
+                }
+                //display album data
+                function getalbumz(data, x){
+                var root = 'https://jsonplaceholder.typicode.com/';
+
+                $.ajax({
+                url: root + 'albums',
+                data: {
+                    userId: data.id
+                },
+                dataType: 'json',
+                method: 'GET',
+                success: function(album){
+                    console.log(album[x]);
+                    thumbnailezzgo(album[x]);
+                }
+                })
+            }
+            function thumbnailezzgo(album){
+                var root = 'https://jsonplaceholder.typicode.com/';
+                var y = Math.floor((Math.random() * 50) + 1);
+                
+
+                $.ajax({
+                url: root + 'photos',
+                data: {
+                    albumId: album.id
+                },
+                dataType: 'json',
+                method: 'GET',
+                success: function(photo){
+                    var pic = photo[y].thumbnailUrl;
+                    
+                    //localStorage.setItem("albumId", photo[y].albumId);
+                    
+                    $(".bundle").append('<a onclick="goAlbum(this);" idValue="' + photo[y].albumId + '"><img class="pic" src="' + pic + '"></a>');
+                }
+                })
+            }
+            
+            function goAlbum(aye){
+                       albumIdzz = $(aye).attr("idValue");
+                        console.log(albumIdzz);
+                        localStorage.setItem("albumId", albumIdzz);
+                        window.location = "viewalbum.html";
+                        localStorage.setItem("userDisp", user);
+                    }
+                  
+            //display posts
+            function usernamez(user,a){
+				var root = 'https://jsonplaceholder.typicode.com';
+				
+				$.ajax({
+					url: root + '/users',
+					data: {
+						username: user
+					},
+					method: 'GET'
+
+				})
+				
+				.done(function(data){
+					var userId = data[0].id;
+					var userName = data[0].username;
+					console.log(userId);
+					console.log(username);
+					var content1 = $('<div id = "post_container"><div id = "usernames">' + '@' + '<a href="userprofile.html">' + userName + '</a>' + '<br>');
+					
+					body(content1,userId,a);
+				});
+			}
+			
+			function body(content1,userId,a){
+				var root = 'https://jsonplaceholder.typicode.com/posts?userId=';
+				var title;
+				var body;
+				
+				console.log(userId);
+				$.ajax({
+					url: root + userId,
+					method: 'GET'
+				})
+				
+				.done(function(data){
+					title = data[a].title;
+					body = data[a].body;
+					
+					var content2 = ('<div id="post">' + title + '<br>' + body + '<br><br>' + '<span></span></div></div></div>');
+					console.log(title); console.log(body);
+					$("#posts").append(content1);
+					$("#posts").append(content2);
+				});
+			}
+            
+        </script>
+    </header>
+    
+    <body>
+        <div class="container">
+            <div class="navbar1">
+                <a href="moments.html">Home</a>
+                <a href="photos.html">Photos</a>
+            </div>  
+        </div>
+            
+        <div class="container2">
+            <div class="details">
+                <div class="section">
+                    <h2 id="name"></h2>
+                    <a id= "un" href="#"></a>
+                    <p id="em"></p>
+                    <p id="addr"></p>
+                    <p id ="phone"></p>
+                </div>
+                <div class="section">
+                    <h1 id="web"></h1>
+                    <p id="cname"></p>
+                    <p id="cp"></p>
+                    <p id="bs"></p>
+                </div>
+            </div>
+            
+            <div class="details2">
+                <div class="album">
+                    <h1>Album</h1>
+                    <div class="bundle">
+                        
+                    </div>
+                    <div class="seemore">
+                        <button class="albumSM">See More</button>
+                    </div>
+                </div>
+                    
+                
+                
+                <div id="wrapper">
+                    <h1>Recent Posts</h1>
+                    <div class="posts" id="posts">
+                    </div>
+                    <div class="seemore">    
+                        <button id="more">See More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <span>Moments.co</span>
+        </div>
+        
+    </body>
+</html>

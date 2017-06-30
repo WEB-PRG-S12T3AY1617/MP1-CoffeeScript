@@ -1,0 +1,123 @@
+<html>
+    <header>
+        <title>Moments</title>
+        <link rel="stylesheet" href="css/moments.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
+        
+        <script>
+            $(document).on('click','#userAnchor',function(){
+                    var username = $(this).text();
+                    localStorage.setItem("userDisp", username);
+                });
+            
+			$(document).ready(function(){
+				
+				var x = 99;
+
+				for(i=x;i>89;i--)
+					body(i);
+				
+				x=i;
+
+				
+					$("#next").click(function(){
+						if(x>=0){
+							for(i=x;i>x-10;i--)
+								body(i);
+							x-=10;
+						}
+						else{
+							alert("No more posts to show");
+						}
+						
+                        
+                        $('html,body').animate({
+                            scrollTop: $(this).offset().top
+                        }, 1500);   
+	
+					});
+
+					
+				console.log(x);
+		});
+			
+			
+			function username(content2, userId){
+
+					var root = 'https://jsonplaceholder.typicode.com';
+					var username;
+					
+					$.ajax({
+					url: root + '/users',
+					method: 'GET'
+					})
+
+					
+					.done(function(data) {
+						userId--;
+						username = data[userId].username;
+						var content1 = $('<div id = "post_container"><div id = "usernames">' + '@' +'<a id="userAnchor" href="userprofile.html">'+ username + '</a>' + '<br>');
+						$("#container3").append(content1);
+						$("#container3").append(content2);
+						
+					});
+			
+			}
+			
+			function body(i){
+					var root = 'https://jsonplaceholder.typicode.com';
+					var title;
+					var body;
+					
+					$.ajax({
+					url: root + '/posts',
+					method: 'GET'
+					})
+					
+					.done(function(data) {
+			
+					title = data[i].title;
+					body = data[i].body;
+	
+					var content2 = ('<div id="post">' +title + '<br>' + body + '<br><br>' + '<span></span></div></div></div>');
+					
+					username(content2, data[i].userId);
+					});
+			}
+        
+        </script>
+    </header>
+    
+    <body class="main">
+        <div class="container">
+            <div class="navbar1">
+                <a href="moments.html">Home</a>
+                <a href="photos.html">Photos</a>
+            </div> 
+        </div>
+        
+        
+        <div class="wrapper">
+            <div class="container3" id="container3">
+                <div class="headline">
+                    <h1>Recent Posts</h1>
+                </div>
+                <div class="contentPost">
+                    <div id="username">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <div><button id = "next">Next 10 posts</button></div>
+            </div>
+        </div>
+      
+                
+        <div class="footer">
+            <span>Moments.co</span>
+        </div>
+        
+            
+    </body>
+</html>

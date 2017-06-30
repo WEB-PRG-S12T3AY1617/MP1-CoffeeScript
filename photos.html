@@ -1,0 +1,206 @@
+<html>
+
+    <head>
+        <link rel="stylesheet" href="css/photos.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
+        <script>
+            $(document).ready(function(){
+				
+				var x;
+				
+				for(i=0;i<40;i++)
+					uploadPhoto(i);
+				x=i;
+				
+                $(".container3").hide();
+                
+				$(document).on('click','#photo',function(){
+                    var id = $(this).attr('value');
+                   // console.log(id);
+					enlargePhoto(id);
+                });
+				
+				$(document).on('click','#close',function(){
+					$("#enlargegrid").empty();
+					$("#enlargedetails").empty();
+					$("#photogrid").show();
+                    $(".container2").show();
+                    $(".container3").hide();
+                    $("#view").show();
+                });
+								
+				$("#view").click(function(){
+					for(i=x;i<x+10;i++){
+						num = i;
+						uploadPhoto(num);
+						}
+					x+=10;
+                    
+                    $('html,body').animate({
+                        scrollTop: $(this).offset().top
+                    }, 1500);   
+                                 
+				});
+			});
+			
+			function uploadPhoto(num){
+				var root = 'https://jsonplaceholder.typicode.com';
+				
+				$.ajax({
+					url: root + '/photos',
+					method: 'GET'
+				})
+				
+				.done(function(data) {
+					var thumbnail = data[num].thumbnailUrl;
+					var photo = data[num].url;
+					var id = data[num].id;
+					id--;
+					console.log(id);
+					console.log(data[num].thumbnailUrl);
+					$("#photogrid").append('<a href="#" ><img id = "photo" value = "'+id+'"src ="' + thumbnail + '" height = "150" width = "150"></a>');
+					
+				});
+			
+			}
+			
+			function enlargePhoto(id){
+				var root = 'https://jsonplaceholder.typicode.com';
+				
+				$.ajax({
+					url: root + '/photos',
+					method: 'GET'
+				})
+				
+				.done(function(data) {
+					num = id;
+					var photo = data[num].url;
+                    $("#view").hide();
+					$("#photogrid").hide();
+                    $(".container3").show();
+                    $(".container2").hide();
+					$("#enlargegrid").show();
+					$("#enlargegrid").append('<a href="#" ><img id = "photo" src ="' + photo + '" height = "600" width = "600"></a>');
+					
+					id++;
+					enlargePdetails(id);
+					
+				});
+			}
+			
+			function enlargePdetails(id){
+				var root = 'https://jsonplaceholder.typicode.com';
+				
+				$.ajax({
+					url: root + '/photos',
+					data:{
+						id:id
+					},
+					method: 'GET'
+				})
+				
+				.done(function(data) {
+					//console.log(id);
+					console.log(data[0].id);
+					console.log(data[0].albumId);
+					console.log(data[0].title);
+					
+					var albumId = data[0].albumId;
+					var photoT = data[0].title;
+					
+					enlargeAdetails(albumId, photoT);
+				});
+			
+			}
+			
+			function enlargeAdetails(albumId, photoT){
+				var root = 'https://jsonplaceholder.typicode.com';
+				
+				$.ajax({
+					url: root + '/albums',
+					data:{
+						id:albumId
+					},
+					method: 'GET'
+				})
+				
+				.done(function(data){
+					console.log(data[0].title);
+					console.log(data[0].userId);
+                    console.log("USER ID TO");
+					
+					var albumT = data[0].title;
+					var userId = data[0].userId;
+                    
+					
+					enlargeUdetails(photoT, albumT, userId, albumId);
+				});
+			}
+			
+			function enlargeUdetails(photoT, albumT, userId, albumId){
+				var root = 'https://jsonplaceholder.typicode.com/users?userId=';
+				$.ajax({
+					url: root + userId,
+					method: 'GET'
+				})
+				
+				.done(function(data){
+                    userId--;
+					console.log(data[userId].name);
+                    console.log(albumId);
+                    console.log("USER ID TO");
+					var nameOf = data[userId].name;
+					
+					//$("#enlargedetails").append('<p>Title of Photo: ' + photoT + '<br> Title of Album: ' + albumT + '<br> Album by: ' + nameOf + '<p>');
+					$("#enlargedetails").append('<p>Title of Photo: ' + photoT + '</p>Title of Album:  <a href="viewalbum.html">' +  albumT + '</a><br>Album by: <a href="userprofile.html">' + nameOf + '</a>' );
+                    
+                    localStorage.setItem('userDisp',data[userId].username);
+                    localStorage.setItem('albumId',albumId);
+				});
+			}
+        </script>
+    </head>
+    
+    
+    <body>
+    
+        <div class="container">
+            <div class="navbar1">
+                <a href="moments.html">Home</a>
+                <a href="photos.html">Photos</a>
+            </div> 
+        </div>
+        
+        <div class="container2">
+            <h1>Photos</h1>
+            <div class="photo">
+                
+            </div>
+            <div class="thumbnails" id="photogrid">
+                
+            </div>
+            
+        </div>
+        
+        
+        
+        <div class="container3">
+            <div id="closegrid">
+                <button id = "close"><img id="close" src="close.png"></button>
+            </div>
+            <div id="enlargegrid"></div>
+            <div class="subcontainer">
+                <div id="enlargedetails"></div>
+            </div>
+        </div>
+        
+        <div class="more">
+            <button id="view">See More</button>
+        </div>
+        
+        <div class="footer">
+            <span>Moments.co</span>
+        </div>
+        
+    </body>
+</html>
